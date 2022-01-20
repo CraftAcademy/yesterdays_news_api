@@ -1,37 +1,56 @@
 RSpec.describe 'POST /api/articles', type: :request do
   subject { response }
+  let(:user) { create(:user) }
+  let(:credentials) { user.create_new_auth_token }
 
   describe 'with valid params' do
-    before do
-      post '/api/articles', params: {
-        article: {
-          title: 'Mars and Venus together',
-          body: 'There is water on Mars',
-          category: 'news'
-        }
-      }
-      @article = Article.last
+    describe 'as anonumos user' do
+      before do
+        post '/api/articles', params: {
+          article: {
+            title: 'Mars and Venus together',
+            body: 'There is water on Mars',
+            category: 'news'
+          }
+        }, headers: nil
+        @article = Article.last
+      end
+
+      it { is_expected.to have_http_status :unauthorized }
     end
 
-    it { is_expected.to have_http_status :created }
+    describe 'as an authenticated user' do
+      before do
+        post '/api/articles', params: {
+          article: {
+            title: 'Mars and Venus together',
+            body: 'There is water on Mars',
+            category: 'news'
+          }
+        }, headers: credentials
+        @article = Article.last
+      end
 
-    it 'is expected to create an instance of Article' do
-      expect(@article).to_not eq nil
-    end
+      it { is_expected.to have_http_status :created }
 
-    it 'is expected to have saved the article in the database' do
-      expect(@article.title).to eq 'Mars and Venus together'
-    end
+      it 'is expected to create an instance of Article' do
+        expect(@article).to_not eq nil
+      end
 
-    it 'is expected to respond with a confirmation message' do
-      expect(response_json['message']).to eq "Article created successfully"
+      it 'is expected to have saved the article in the database' do
+        expect(@article.title).to eq 'Mars and Venus together'
+      end
+
+      it 'is expected to respond with a confirmation message' do
+        expect(response_json['message']).to eq 'Article created successfully'
+      end
     end
   end
 
   describe 'unsuccessfully' do
     describe 'due to missing params' do
       before do
-        post '/api/articles', params: {}
+        post '/api/articles', params: {}, headers: credentials
       end
 
       it { is_expected.to have_http_status :unprocessable_entity }
@@ -48,7 +67,7 @@ RSpec.describe 'POST /api/articles', type: :request do
             body: 'There is water on Mars',
             category: 'news'
           }
-        }
+        }, headers: credentials
       end
 
       it { is_expected.to have_http_status :unprocessable_entity }
@@ -65,7 +84,7 @@ RSpec.describe 'POST /api/articles', type: :request do
             title: 'Mars and Venus together',
             category: 'news'
           }
-        }
+        }, headers: credentials
       end
 
       it { is_expected.to have_http_status :unprocessable_entity }
@@ -82,7 +101,7 @@ RSpec.describe 'POST /api/articles', type: :request do
             title: 'Mars and Venus together',
             body: 'There is water on Mars'
           }
-        }
+        }, headers: credentials
       end
 
       it { is_expected.to have_http_status :unprocessable_entity }
