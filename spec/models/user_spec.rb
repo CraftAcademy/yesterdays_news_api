@@ -30,4 +30,8 @@ RSpec.describe User, type: :model do
     it { is_expected.to respond_to :journalist! }
     it { is_expected.to respond_to :editor! }
   end
+
+  describe 'Associations' do
+    it { is_expected.to have_many(:articles) }
+  end
 end

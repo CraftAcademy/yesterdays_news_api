@@ -37,7 +37,7 @@ class Api::ArticlesController < ApplicationController
   end
 
   def article_params
-    params[:article].permit(:title, :body, :category_id)
+    params[:article].permit(:title, :body, :category_id, :user_id)
   end
 
   def validate_params_presence

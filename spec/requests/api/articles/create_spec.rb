@@ -1,7 +1,7 @@
 RSpec.describe 'POST /api/articles', type: :request do
   subject { response }
   let(:journalist) { create(:user, role: 'journalist') }
-  let(:user) { create(:user, role: nil) }
+  let!(:user) { create(:user, role: nil) }
   let(:credentials) { journalist.create_new_auth_token }
   let(:non_staff_credentials) { user.create_new_auth_token }
   let!(:category) { create(:category) }
@@ -13,7 +13,8 @@ RSpec.describe 'POST /api/articles', type: :request do
           article: {
             title: 'Mars and Venus together',
             body: 'There is water on Mars',
-            category_id: category.id
+            category_id: category.id,
+            user_id: user.id
           }
         }, headers: credentials
         @article = Article.last
@@ -51,7 +52,8 @@ RSpec.describe 'POST /api/articles', type: :request do
           post '/api/articles', params: {
             article: {
               body: 'There is water on Mars',
-              category: 'news'
+              category_id: category.id,
+              user_id: user.id
             }
           }, headers: credentials
         end
@@ -68,7 +70,8 @@ RSpec.describe 'POST /api/articles', type: :request do
           post '/api/articles', params: {
             article: {
               title: 'Mars and Venus together',
-              category: 'news'
+              category_id: category.id,
+              user_id: user.id
             }
           }, headers: credentials
         end
@@ -85,7 +88,8 @@ RSpec.describe 'POST /api/articles', type: :request do
           post '/api/articles', params: {
             article: {
               title: 'Mars and Venus together',
-              body: 'There is water on Mars'
+              body: 'There is water on Mars',
+              user_id: user.id
             }
           }, headers: credentials
         end
@@ -104,7 +108,7 @@ RSpec.describe 'POST /api/articles', type: :request do
         article: {
           title: 'Mars and Venus together',
           body: 'There is water on Mars',
-          category: 'news'
+          category_id: category.id
         }
       }, headers: nil
       @article = Article.last
@@ -119,7 +123,8 @@ RSpec.describe 'POST /api/articles', type: :request do
         article: {
           title: 'Mars and Venus together',
           body: 'There is water on Mars',
-          category: 'news'
+          category_id: category.id,
+          user_id: user.id
         }
       }, headers: non_staff_credentials
       @article = Article.last
